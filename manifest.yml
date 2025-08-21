@@ -1,0 +1,28 @@
+name: EasyNVR
+package: cloud.lazycat.app.easynvr
+version: 7.7.138
+min_os_version: 1.3.8
+description: "一个快速、简单且免费的BitTorrent客户端 "
+homepage: https://www.easynvr.com
+author: easynvr
+application:
+    subdomain: easynvr
+    background_task: true
+    public_path:
+        - /
+    upstreams:
+        - location: /
+          backend: http://host.lzcapp:10000/
+services:
+    easynvr:
+        image: registry.cn-shanghai.aliyuncs.com/rustc/easynvr_amd64:latest
+        binds:
+            - /lzcapp/var/configs:/app/configs
+            - /lzcapp/var/logs:/app/logs
+            - /lzcapp/var/temporary:/app/temporary
+            - /lzcapp/var/r:/app/r
+            - /lzcapp/var/stream:/app/stream
+        network_mode: host
+unsupported_platforms:
+    - ios
+    - android
