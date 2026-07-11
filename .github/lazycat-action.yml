@@ -1,0 +1,42 @@
+version: 1
+project:
+  root: .
+  build_config: lzc-build.yml
+  package_file: package.yml
+  output: dist/easynvr.lpk
+update:
+  strategy: publish
+  allow_downgrade: false
+  version_source:
+    type: image
+    image: easynvr
+build:
+  run_buildscript: false
+images:
+  - id: easynvr
+    target: service
+    service: easynvr
+    source: registry.cn-shanghai.aliyuncs.com/rustc/easynvr_amd64
+    channel: custom
+    sort: created
+    tag_regex: '^latest$'
+    version_regex: '^(?P<version>latest)$'
+    version_template: '7.7.406'
+    delivery:
+      mode: lazycat
+stores:
+  official:
+    enabled: true
+    skip_if_version_exists: true
+    create_if_missing: true
+    changelog_locales: [zh, en]
+    application:
+      language: zh
+      name: EasyNVR
+      source: https://www.easynvr.com
+      source_author: EasyNVR
+  private:
+    enabled: true
+    skip_if_version_exists: true
+    name: EasyNVR
+    summary: 视频监控与 NVR 管理平台

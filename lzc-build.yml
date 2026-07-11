@@ -1,6 +1,3 @@
-# manifest: 指定 lpk 包的 manifest.yml 文件路径
-manifest: ./manifest.yml
-
-# pkgout: lpk 包的输出路径
+manifest: ./lzc-manifest.yml
 pkgout: ./
 icon: ./icon.png

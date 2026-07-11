@@ -1,0 +1,19 @@
+package: cloud.lazycat.app.easynvr
+version: 7.7.406
+name: EasyNVR
+description: 视频监控与 NVR 管理平台
+min_os_version: 1.5.0
+homepage: https://www.easynvr.com
+author: EasyNVR
+
+permissions:
+  required:
+    - net.internet
+
+locales:
+  zh:
+    name: EasyNVR
+    description: 视频监控与 NVR 管理平台
+  en:
+    name: EasyNVR
+    description: Video surveillance and NVR management platform

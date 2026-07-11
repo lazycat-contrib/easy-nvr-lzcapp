@@ -1,0 +1,24 @@
+application:
+  subdomain: easynvr
+  background_task: true
+  public_path:
+    - /
+  upstreams:
+    - location: /
+      backend: http://host.lzcapp:10000/
+
+services:
+  easynvr:
+    # upstream: registry.cn-shanghai.aliyuncs.com/rustc/easynvr_amd64:latest (EasyNVR 7.7.406)
+    image: registry.lazycat.cloud/czyt/rustc/easynvr_amd64:latest
+    binds:
+      - /lzcapp/var/configs:/app/configs
+      - /lzcapp/var/logs:/app/logs
+      - /lzcapp/var/temporary:/app/temporary
+      - /lzcapp/var/r:/app/r
+      - /lzcapp/var/stream:/app/stream
+    network_mode: host
+
+unsupported_platforms:
+  - ios
+  - android
