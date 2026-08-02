@@ -21,7 +21,7 @@ images:
     sort: created
     tag_regex: '^latest$'
     version_regex: '^(?P<version>latest)$'
-    version_template: '7.7.406'
+    version_template: '7.7.412'
     delivery:
       mode: lazycat
 stores:
