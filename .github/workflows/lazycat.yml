@@ -1,21 +1,83 @@
-name: Update and publish LazyCat app
+name: Check EasyNVR version
+
 on:
   schedule:
     - cron: "0 23 * * *"
   workflow_dispatch:
+
 permissions:
+  actions: write
   contents: write
-  pull-requests: write
+
+concurrency:
+  group: easynvr-version-${{ github.repository }}-${{ github.ref }}
+  cancel-in-progress: false
+
 jobs:
-  lazycat:
-    uses: ca-x/lazycat-github-action/.github/workflows/lazycat.yml@v1
-    with:
-      operation: auto
-      config: .github/lazycat-action.yml
-      versioned-release-asset: true
-    secrets:
-      LAZYCAT_TOKEN: ${{ secrets.LAZYCAT_TOKEN }}
-      APPSTORE_URL: ${{ secrets.APPSTORE_URL }}
-      APPSTORE_TOKEN: ${{ secrets.APPSTORE_TOKEN }}
-      APP_ID: ${{ secrets.APP_ID }}
-      PRIVATE_STORE_GROUP_CODES: ${{ secrets.PRIVATE_STORE_GROUP_CODES }}
+  resolve_version:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout application
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event.repository.default_branch }}
+
+      - name: Read current package version
+        id: package
+        run: |
+          set -euo pipefail
+          version="$(sed -nE 's/^version:[[:space:]]*([^[:space:]]+).*/\1/p' package.yml | head -n 1 | tr -d \"\'\")"
+          if [[ -z "${version}" ]]; then
+            echo 'package.yml does not define version' >&2
+            exit 1
+          fi
+          echo "version=${version}" >>"${GITHUB_OUTPUT}"
+
+      - name: Resolve published EasyNVR version
+        id: version
+        env:
+          CURRENT_VERSION: ${{ steps.package.outputs.version }}
+          EASYNVR_VERSION_URL: https://www.easynvr.com/public/new_version.json
+        run: .github/scripts/resolve-easynvr-version.sh
+
+      - name: Update committed version mapping
+        if: steps.version.outputs.should_update == 'true'
+        env:
+          TARGET_REF: ${{ github.event.repository.default_branch }}
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          set -euo pipefail
+          if [[ ! "${VERSION}" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "invalid resolved version: ${VERSION}" >&2
+            exit 1
+          fi
+          sed -i -E "s/^([[:space:]]*version_template:).*/\1 '${VERSION}'/" \
+            .github/lazycat-action.yml
+          if [[ "$(grep -Fc "version_template: '${VERSION}'" .github/lazycat-action.yml)" != '1' ]]; then
+            echo 'version_template was not updated exactly once' >&2
+            exit 1
+          fi
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add -- .github/lazycat-action.yml
+          git commit -m "chore: prepare EasyNVR ${VERSION} update [skip ci]"
+          git pull --rebase origin "${TARGET_REF}"
+          git push origin "HEAD:${TARGET_REF}"
+
+      - name: Dispatch LazyCat publication and reconciliation
+        uses: actions/github-script@v9
+        env:
+          CHANGELOG: ${{ steps.version.outputs.changelog }}
+          TARGET_REF: ${{ github.event.repository.default_branch }}
+        with:
+          script: |
+            await github.rest.actions.createWorkflowDispatch({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              workflow_id: "lazycat-publish.yml",
+              ref: process.env.TARGET_REF,
+              inputs: {
+                changelog: process.env.CHANGELOG || "",
+              },
+            });

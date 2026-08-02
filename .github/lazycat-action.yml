@@ -4,6 +4,7 @@ project:
   build_config: lzc-build.yml
   package_file: package.yml
   output: dist/easynvr.lpk
+  target_arch: amd64
 update:
   strategy: publish
   allow_downgrade: false
@@ -21,6 +22,8 @@ images:
     sort: created
     tag_regex: '^latest$'
     version_regex: '^(?P<version>latest)$'
+    # The version-check workflow updates this mapping from version_list[0]
+    # before dispatching the reusable publication workflow.
     version_template: '7.7.412'
     delivery:
       mode: lazycat
@@ -30,6 +33,11 @@ stores:
     skip_if_version_exists: true
     create_if_missing: true
     changelog_locales: [zh, en]
+    retry:
+      enabled: false
+      max_attempts: 3
+      initial_delay: 2s
+      max_delay: 30s
     application:
       language: zh
       name: EasyNVR

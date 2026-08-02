@@ -17,6 +17,3 @@ services:
       - /lzcapp/var/r:/app/r
       - /lzcapp/var/stream:/app/stream
     network_mode: host
-unsupported_platforms:
-  - ios
-  - android

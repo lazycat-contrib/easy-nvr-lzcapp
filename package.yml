@@ -5,6 +5,9 @@ description: 视频监控与 NVR 管理平台
 min_os_version: 1.5.0
 homepage: https://www.easynvr.com
 author: EasyNVR
+unsupported_platforms:
+  - ios
+  - android
 permissions:
   required:
     - net.internet
