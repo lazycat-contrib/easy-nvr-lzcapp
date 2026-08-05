@@ -9,7 +9,7 @@ application:
 services:
   easynvr:
     # upstream: registry.cn-shanghai.aliyuncs.com/rustc/easynvr_amd64:latest
-    image: registry.lazycat.cloud/czyt/rustc/easynvr_amd64:665f0a01688f3df6
+    image: registry.lazycat.cloud/czyt/rustc/easynvr_amd64:eba4416a75d8f619
     binds:
       - /lzcapp/var/configs:/app/configs
       - /lzcapp/var/logs:/app/logs
