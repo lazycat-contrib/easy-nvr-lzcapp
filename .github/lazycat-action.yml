@@ -24,7 +24,7 @@ images:
     version_regex: '^(?P<version>latest)$'
     # The version-check workflow updates this mapping from version_list[0]
     # before dispatching the reusable publication workflow.
-    version_template: '7.7.417'
+    version_template: '7.7.420'
     delivery:
       mode: lazycat
 stores:
